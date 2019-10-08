@@ -2,4 +2,8 @@
     <string name="app_name">ExoHomeLibrarySample</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
+    <string name="provision">Provision</string>
+    <string name="connect">Connect</string>
+    <string name="connect_title">ExoHome Lib demonstration</string>
+    <string name="productId">Product id (replace it to yours)</string>
 </resources>

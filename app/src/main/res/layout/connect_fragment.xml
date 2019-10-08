@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.main.ConnectFragment">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/pIdInputLayout"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/vProductId"
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="@string/productId"
+            android:text="l55gbjzaaytw00000" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/dIdInputLayout"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pIdInputLayout">
+
+        <EditText
+            android:id="@+id/vDeviceId"
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="Device id"
+            android:text="0a86dda0514b000000000000" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/vProvision"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/provision"
+        app:layout_constraintTop_toBottomOf="@id/dIdInputLayout"
+        app:layout_constraintStart_toStartOf="@id/dIdInputLayout"
+        />
+
+    <Button
+        android:id="@+id/vConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/connect"
+        android:enabled="false"
+        app:layout_constraintTop_toBottomOf="@id/vProvision"
+        app:layout_constraintStart_toStartOf="@id/vProvision"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:text="@string/connect_title"
+        android:layout_marginBottom="36dp"
+        app:layout_constraintBottom_toTopOf="@id/pIdInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>
