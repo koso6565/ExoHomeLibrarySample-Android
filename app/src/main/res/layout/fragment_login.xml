@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        tools:context=".ui.main.LoginFragment">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/vEmailLayout"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            >
+            <EditText
+                android:id="@+id/vEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:hint="Email"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/vPwLayout"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/vEmailLayout"
+            app:layout_constraintStart_toStartOf="@id/vEmailLayout"
+            app:layout_constraintEnd_toEndOf="@id/vEmailLayout"
+            >
+            <EditText
+                android:id="@+id/vPw"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:hint="Password"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/vTokenLayout"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/vPwLayout"
+            app:layout_constraintStart_toStartOf="@id/vEmailLayout"
+            app:layout_constraintEnd_toEndOf="@id/vEmailLayout"
+            >
+            <EditText
+                android:id="@+id/vToken"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:editable="false"
+                android:hint="Session token"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+        <Button
+            android:id="@+id/vLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Log in"
+            app:layout_constraintStart_toStartOf="@id/vEmailLayout"
+            app:layout_constraintTop_toBottomOf="@id/vTokenLayout"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@id/vEmailLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            android:text="PHONE SIDE\n Simulation"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

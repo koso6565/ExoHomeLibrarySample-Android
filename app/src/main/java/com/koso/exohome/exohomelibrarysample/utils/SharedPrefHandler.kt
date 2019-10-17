@@ -49,5 +49,21 @@ class SharedPrefHandler {
         fun setDeviceId(context: Context, deviceId: String){
             getEditor(context).putString("deviceId", deviceId).apply()
         }
+
+        fun setEmail(context:Context, email: String) {
+            getEditor(context).putString("email", email).apply()
+        }
+
+        fun getEmail(context: Context): String?{
+            return getSharedPrefences(context).getString("email", "")
+        }
+
+        fun setPassword(context: Context, pw: String){
+            getEditor(context).putString("password", pw).apply()
+
+        }
+        fun getPassword(context: Context): String?{
+            return getSharedPrefences(context).getString("password", "")
+        }
     }
 }
