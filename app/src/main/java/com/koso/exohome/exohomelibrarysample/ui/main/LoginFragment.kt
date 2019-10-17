@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.koso.exohome.exohomelibrarysample.R
 import com.koso.exohome.exohomelibrarysample.api.SessionResponseJsonAdapter
+import com.koso.exohome.exohomelibrarysample.api.WebSocketResponseJsonAdapter
 import com.koso.exohome.exohomelibrarysample.utils.SharedPrefHandler
 import com.squareup.moshi.Moshi
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -18,6 +20,9 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.java_websocket.client.WebSocketClient
+import org.java_websocket.handshake.ServerHandshake
+import java.net.URI
 
 
 /**
@@ -36,6 +41,7 @@ class LoginFragment : Fragment() {
      */
     val moshi = Moshi.Builder().build()
 
+    var webSocketClient : WebSocketClient? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +67,7 @@ class LoginFragment : Fragment() {
 
         vEmail.setText(SharedPrefHandler.getEmail(context!!))
         vPw.setText(SharedPrefHandler.getPassword(context!!))
-        vToken.setText(SharedPrefHandler.getToken(context!!))
+        vToken.setText(SharedPrefHandler.getSessionToken(context!!))
 
         vLogin.setOnClickListener {
             if (validateData()) {
@@ -82,12 +88,57 @@ class LoginFragment : Fragment() {
                         val r = SessionResponseJsonAdapter(moshi).fromJson(json)
                         r?.let{
                             vToken.setText(it.token)
-                            SharedPrefHandler.setToken(context!!, it.token)
+
+                            handleSessionTokenAvailable(it.token)
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun handleSessionTokenAvailable(token: String) {
+        SharedPrefHandler.setSessionToken(context!!, token)
+        webSocketClient = object: WebSocketClient(URI.create("wss://koso.apps.exosite.io/api:1/phone")){
+            override fun onOpen(handshakedata: ServerHandshake?) {
+                val request = """{"id":1, "request":"login", "data":{"token":"$token"}}"""
+                webSocketClient?.send(request)
+            }
+
+            override fun onClose(code: Int, reason: String?, remote: Boolean) {
+
+            }
+
+            override fun onMessage(message: String?) {
+                val response = WebSocketResponseJsonAdapter(moshi).fromJson(message)
+                response?.let {
+                    if(it.response == "login" && it.status == "ok"){
+                        handleLogedIn()
+                    }else if(it.response == "provision_token" && it.status == "ok"){
+                        response.data?.let {
+                            handleProvisionTokenAvailable(it.token)
+                        }
+                    }
+                }
+
+            }
+
+            override fun onError(ex: Exception?) {
+
+            }
+        }
+        webSocketClient!!.connect()
+    }
+
+    private fun handleProvisionTokenAvailable(token: String) {
+        SharedPrefHandler.setProvisionToken(context!!, token)
+        vProvisionToken.setText(token)
+        Toast.makeText(context!!, "Gained provision token!", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun handleLogedIn() {
+        val request = """{"id": 2, "request": "provision_token", "data":{"expires_in": 2592000}}"""
+        webSocketClient?.send(request)
     }
 
     private fun validateData(): Boolean {

@@ -63,13 +63,31 @@
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/vProvisionTokenLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/vTokenLayout"
+            app:layout_constraintStart_toStartOf="@id/vEmailLayout"
+            app:layout_constraintEnd_toEndOf="@id/vEmailLayout"
+            >
+            <EditText
+                android:id="@+id/vProvisionToken"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:editable="false"
+                android:hint="Provision token"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
         <Button
             android:id="@+id/vLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Log in"
             app:layout_constraintStart_toStartOf="@id/vEmailLayout"
-            app:layout_constraintTop_toBottomOf="@id/vTokenLayout"
+            app:layout_constraintTop_toBottomOf="@id/vProvisionTokenLayout"
             />
 
         <TextView

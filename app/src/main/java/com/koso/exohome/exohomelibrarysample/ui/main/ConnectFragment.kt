@@ -58,7 +58,7 @@ class ConnectFragment : Fragment() {
             Log.d("EXOHOME", "received --- topic:${topic ?: " "}  message: ${message ?: ""}")
             topic?.let {
                 if (topic.contains("provision")) {
-                    SharedPrefHandler.setToken(context!!, message.toString())
+                    SharedPrefHandler.setSessionToken(context!!, message.toString())
                     vToken.setText(message.toString())
                     handleProvisionSuccess(message.toString())
                 }
@@ -240,7 +240,7 @@ class ConnectFragment : Fragment() {
             createNewDeviceId()
         }
 
-        vToken.setText(SharedPrefHandler.getToken(context!!))
+        vToken.setText(SharedPrefHandler.getSessionToken(context!!))
 
 
         vConnect.setOnClickListener {
@@ -256,7 +256,7 @@ class ConnectFragment : Fragment() {
         }
 
         vGenId.setOnClickListener {
-            SharedPrefHandler.setToken(context!!, "")
+            SharedPrefHandler.setSessionToken(context!!, "")
             createNewDeviceId()
         }
 

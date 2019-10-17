@@ -22,7 +22,7 @@ class SharedPrefHandler {
             ).edit()
         }
 
-        fun getToken(context: Context): String{
+        fun getSessionToken(context: Context): String{
             return try {
                 getSharedPrefences(
                     context
@@ -32,7 +32,7 @@ class SharedPrefHandler {
             }
         }
 
-        fun setToken(context: Context, token: String){
+        fun setSessionToken(context: Context, token: String){
             getEditor(
                 context
             ).putString("token", token).apply()
@@ -64,6 +64,14 @@ class SharedPrefHandler {
         }
         fun getPassword(context: Context): String?{
             return getSharedPrefences(context).getString("password", "")
+        }
+
+        fun setProvisionToken(context: Context, token: String) {
+            getEditor(context).putString("provision_token", token).apply()
+        }
+
+        fun getProvisionToken(context: Context){
+            getSharedPrefences(context).getString("provision_token", "")
         }
     }
 }
