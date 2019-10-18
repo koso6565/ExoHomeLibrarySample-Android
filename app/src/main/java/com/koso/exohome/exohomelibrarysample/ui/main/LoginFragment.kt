@@ -68,6 +68,7 @@ class LoginFragment : Fragment() {
         vEmail.setText(SharedPrefHandler.getEmail(context!!))
         vPw.setText(SharedPrefHandler.getPassword(context!!))
         vToken.setText(SharedPrefHandler.getSessionToken(context!!))
+        vProvisionToken.setText(SharedPrefHandler.getOwnerProvisionToken(context!!))
 
         vLogin.setOnClickListener {
             if (validateData()) {
@@ -131,7 +132,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun handleProvisionTokenAvailable(token: String) {
-        SharedPrefHandler.setProvisionToken(context!!, token)
+        SharedPrefHandler.setOwnerProvisionToken(context!!, token)
         vProvisionToken.setText(token)
         Toast.makeText(context!!, "Gained provision token!", Toast.LENGTH_SHORT).show()
     }

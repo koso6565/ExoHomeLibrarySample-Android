@@ -1,5 +1,6 @@
 package com.koso.exohome.exohomelibrarysample.ui.main
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -58,9 +59,30 @@ class ConnectFragment : Fragment() {
             Log.d("EXOHOME", "received --- topic:${topic ?: " "}  message: ${message ?: ""}")
             topic?.let {
                 if (topic.contains("provision")) {
-                    SharedPrefHandler.setSessionToken(context!!, message.toString())
+                    SharedPrefHandler.setDeviceProvisionToken(context!!, message.toString())
                     vToken.setText(message.toString())
                     handleProvisionSuccess(message.toString())
+                } else if (topic.contains("owner")) {
+                    message?.let {
+                        val owner = OwnerModel(it.toString())
+                        deviceClient.publish(
+                            owner.createResourceCommand(),
+                            object : IMqttActionListener {
+                                override fun onSuccess(asyncActionToken: IMqttToken?) {
+                                    Toast.makeText(context, "owner acked", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+
+                                override fun onFailure(
+                                    asyncActionToken: IMqttToken?,
+                                    exception: Throwable?
+                                ) {
+
+                                }
+
+                            })
+                    }
+
                 }
             }
         }
@@ -92,7 +114,11 @@ class ConnectFragment : Fragment() {
 
     private fun publishRestInfo(token: String) {
 
-        // esh
+        /** ESH product resource
+         *0
+         **/
+
+
         val esh = EshModel("KOSO", "1.00", "KOSO001")
         deviceClient.publish(esh.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
@@ -180,10 +206,13 @@ class ConnectFragment : Fragment() {
 
         // states
         val states = HashMap<String, Any>().apply {
-            put("H00", 0)
-            put("H01", 0)
-            put("H02", 0)
-            put("H03", 0)
+            put("H00", 12345)
+            put("H01", 1200)
+            put("H02", 3456)
+            put("H03", 100)
+            put("H04", 54)
+            put("H05", 60)
+            put("H06", 1)
         }
 
         val statesModel = StatesModel(states)
@@ -198,17 +227,18 @@ class ConnectFragment : Fragment() {
         })
 
         // token
-        val tokenModel =
-            TokenModel("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJpMjVsbWxuczVlbmhjMDAwMCIsImV4cCI6MTU3MzgwMzQ1NCwiaWF0IjoxNTcxMjExNDU0LCJpc3MiOiJsNTVnYmp6YWF5dHcwMDAwMCIsInN1YiI6Nn0.MDM2OWNiMWZhOTA1NTczMzYzZWZjZTM3MDExNmU3ZTJlMDk2YmNmMjgxZTZjMzIyOTVhODAzOWZhMTU4YWVjMA")
-        deviceClient.publish(tokenModel.createResourceCommand(), object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken?) {
-                Log.d("EXOHOME", "token published")
-            }
+        SharedPrefHandler.getOwnerProvisionToken(context!!)?.let {
+            val tokenModel = TokenModel(it)
+            deviceClient.publish(tokenModel.createResourceCommand(), object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken?) {
+                    Log.d("EXOHOME", "token published")
+                }
 
-            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                Log.d("EXOHOME", "token failed")
-            }
-        })
+                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    Log.d("EXOHOME", "token failed")
+                }
+            })
+        }
     }
 
     override fun onCreateView(
@@ -224,6 +254,12 @@ class ConnectFragment : Fragment() {
         initViews()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if(::deviceClient.isInitialized){
+            deviceClient.close()
+        }
+    }
     private fun registerConnectState() {
         connectState.observe(
             this,
@@ -232,7 +268,6 @@ class ConnectFragment : Fragment() {
 
 
     private fun initViews() {
-
         if (SharedPrefHandler.getDeviceId(context!!).isNotEmpty()) {
             val id = SharedPrefHandler.getDeviceId(context!!)
             vDeviceId.setText(id)
@@ -240,14 +275,33 @@ class ConnectFragment : Fragment() {
             createNewDeviceId()
         }
 
-        vToken.setText(SharedPrefHandler.getSessionToken(context!!))
-
+        vToken.setText(SharedPrefHandler.getDeviceProvisionToken(context!!))
 
         vConnect.setOnClickListener {
             context?.let {
-                deviceClient = ExoHomeDeviceClient(it, vProductId.text.toString(), mqttCallback)
-                registerConnectState()
-                doConnect()
+
+                if (::deviceClient.isInitialized && deviceClient.isConnected()) {
+                    deviceClient.disconnect()
+                } else {
+                    SharedPrefHandler.getOwnerProvisionToken(context!!)
+                        ?.let { ownerProvisionToken ->
+                            if (ownerProvisionToken.isNotEmpty()) {
+                                deviceClient = ExoHomeDeviceClient(
+                                    it,
+                                    vProductId.text.toString(),
+                                    mqttCallback
+                                )
+                                registerConnectState()
+                                doConnect()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Provision token is required",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                }
             }
         }
 
@@ -256,15 +310,34 @@ class ConnectFragment : Fragment() {
         }
 
         vGenId.setOnClickListener {
-            SharedPrefHandler.setSessionToken(context!!, "")
+            SharedPrefHandler.setDeviceProvisionToken(context!!, "")
             createNewDeviceId()
         }
 
+        vSendState.setOnClickListener {
+            val name = vStateName.text.toString()
+            val value = vStateValue.text.toString()
+            sendStateValue(name, value as Any)
+        }
+    }
 
+    private fun sendStateValue(name: String, value: Any) {
+        val map = HashMap<String, Any>()
+        map.put(name, value)
+        deviceClient.publish(
+            StatesModel(map).createResourceCommand(),
+            object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken?) {
+                    Toast.makeText(context, "data send", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    Toast.makeText(context, "failed", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 
     private fun createNewDeviceId() {
-
         val deviceId = DeviceIdGenerator.createId(mockMacAddr) // given a default mac address
         vDeviceId.setText(deviceId)
         SharedPrefHandler.setDeviceId(context!!, deviceId)
@@ -293,15 +366,25 @@ class ConnectFragment : Fragment() {
     }
 
     private fun doConnect() {
-        if (vToken.text.toString().isEmpty()) {
-            deviceClient.connect(listener = mqttConnectListener)
-        } else {
-            deviceClient.connect(deviceToken = vToken.text.toString(), listener = mqttConnectListener)
+        SharedPrefHandler.getDeviceProvisionToken(context!!)?.let {
+            if (it.isEmpty()) {
+                deviceClient.connect(listener = mqttConnectListener)
+            } else {
+                deviceClient.connect(deviceToken = vToken.text.toString(), listener = mqttConnectListener)
+            }
         }
+
     }
 
     private fun showState(connected: Boolean) {
         vConnect.isEnabled = true
-        vProvision.isEnabled = connected
+        if (vToken.text.toString().isNotEmpty()) {
+            // We don't need provision when provision token is already available
+            vProvision.isEnabled = false
+        } else {
+            vProvision.isEnabled = connected
+        }
+        vSendState.isEnabled = connected
+        vSendState.setBackgroundColor(if (connected) Color.GREEN else Color.RED)
     }
 }

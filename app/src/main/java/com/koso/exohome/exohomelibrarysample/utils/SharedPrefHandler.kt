@@ -66,12 +66,22 @@ class SharedPrefHandler {
             return getSharedPrefences(context).getString("password", "")
         }
 
-        fun setProvisionToken(context: Context, token: String) {
-            getEditor(context).putString("provision_token", token).apply()
+        fun setDeviceProvisionToken(context: Context, token: String) {
+            getEditor(context).putString("device_provision_owner", token).apply()
         }
 
-        fun getProvisionToken(context: Context){
-            getSharedPrefences(context).getString("provision_token", "")
+        fun getDeviceProvisionToken(context: Context): String?{
+            return getSharedPrefences(context).getString("device_provision_owner", "")
+        }
+
+        // Setter of owner(phone) provision token
+        fun setOwnerProvisionToken(context: Context, token: String) {
+            getEditor(context).putString("owner_provision_token", token).apply()
+        }
+
+        // Getter of owner(phone) provision token
+        fun getOwnerProvisionToken(context: Context): String? {
+            return getSharedPrefences(context).getString("owner_provision_token", "")
         }
     }
 }

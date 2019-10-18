@@ -7,14 +7,25 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.ConnectFragment">
 
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:layout_marginBottom="36dp"
+        android:text="@string/connect_title"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/pIdInputLayout"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/title">
 
         <EditText
             android:id="@+id/vProductId"
@@ -86,16 +97,43 @@
         app:layout_constraintStart_toStartOf="@id/vConnect"
         />
 
-
-
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/state"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:text="@string/connect_title"
-        android:layout_marginBottom="36dp"
-        app:layout_constraintBottom_toTopOf="@id/pIdInputLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        android:orientation="horizontal"
+        android:layout_marginTop="36dp"
+        app:layout_constraintEnd_toEndOf="@id/tokenInputLayout"
+        app:layout_constraintStart_toStartOf="@id/tokenInputLayout"
+        app:layout_constraintTop_toBottomOf="@id/vProvision">
+
+        <EditText
+            android:id="@+id/vStateName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="H00"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":" />
+
+        <EditText
+            android:id="@+id/vStateValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="1"
+            />
+
+        <ImageButton
+            android:id="@+id/vSendState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_send_black_24dp"/>
+    </LinearLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

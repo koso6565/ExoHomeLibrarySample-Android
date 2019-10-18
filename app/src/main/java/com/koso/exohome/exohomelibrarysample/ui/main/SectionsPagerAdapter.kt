@@ -7,8 +7,7 @@ import androidx.fragment.app.FragmentPagerAdapter
 
 private val TAB_TITLES = arrayOf(
     "Phone",
-    "Device",
-    "Send value"
+    "Device"
 )
 
 /**
@@ -23,7 +22,6 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
         when(position){
             0 -> return LoginFragment.newInstance()
             1 -> return ConnectFragment.newInstance()
-            2 -> return ConnectFragment.newInstance()
         }
         return ConnectFragment.newInstance()
     }
@@ -34,6 +32,6 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
 
     override fun getCount(): Int {
         // Show 2 total pages.
-        return 3
+        return 2
     }
 }
