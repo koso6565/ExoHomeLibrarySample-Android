@@ -72,8 +72,7 @@
         <EditText
             android:id="@+id/vToken"
             android:layout_width="260dp"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
+            android:layout_height="80dp"
             android:editable="false"
             android:hint="Token"
             android:text="" />
@@ -82,7 +81,7 @@
         android:id="@+id/vConnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/connect"
+        android:text="@string/connect_without_token"
         app:layout_constraintTop_toBottomOf="@id/tokenInputLayout"
         app:layout_constraintStart_toStartOf="@id/tokenInputLayout"
 

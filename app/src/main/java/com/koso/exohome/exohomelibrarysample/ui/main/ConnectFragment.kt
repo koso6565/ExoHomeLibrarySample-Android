@@ -26,6 +26,7 @@ class ConnectFragment : Fragment() {
         fun newInstance() = ConnectFragment()
     }
 
+
     /**
      * The constant for logcat message handling
      */
@@ -56,10 +57,10 @@ class ConnectFragment : Fragment() {
 
     private val mqttCallback = object : MqttCallback {
         override fun messageArrived(topic: String?, message: MqttMessage?) {
-            Log.d("EXOHOME", "received --- topic:${topic ?: " "}  message: ${message ?: ""}")
+            Log.d(LOG_TAG, "received --- topic:${topic ?: " "}  message: ${message ?: ""}")
             topic?.let {
                 if (topic.contains("provision")) {
-                    SharedPrefHandler.setDeviceProvisionToken(context!!, message.toString())
+                    SharedPrefHandler.setDeviceToken(context!!, message.toString())
                     vToken.setText(message.toString())
                     handleProvisionSuccess(message.toString())
                 } else if (topic.contains("owner")) {
@@ -82,18 +83,17 @@ class ConnectFragment : Fragment() {
 
                             })
                     }
-
                 }
             }
         }
 
         override fun connectionLost(cause: Throwable?) {
-            Log.d("EXOHOME", "connection lost")
+            Log.d(LOG_TAG, "connection lost")
             showState(false)
         }
 
         override fun deliveryComplete(token: IMqttDeliveryToken?) {
-            Log.d("EXOHOME", "delivery complete")
+            Log.d(LOG_TAG, "delivery complete")
         }
 
     }
@@ -122,11 +122,11 @@ class ConnectFragment : Fragment() {
         val esh = EshModel("KOSO", "1.00", "KOSO001")
         deviceClient.publish(esh.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                Log.d("EXOHOME", "esh published")
+                Log.d(LOG_TAG, "esh published")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                Log.d("EXOHOME", "esh failed")
+                Log.d(LOG_TAG, "esh failed")
             }
         })
 
@@ -140,11 +140,11 @@ class ConnectFragment : Fragment() {
         )
         deviceClient.publish(module.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                Log.d("EXOHOME", "module published")
+                Log.d(LOG_TAG, "module published")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                Log.d("EXOHOME", "module failed")
+                Log.d(LOG_TAG, "module failed")
             }
         })
 
@@ -155,11 +155,11 @@ class ConnectFragment : Fragment() {
         )
         deviceClient.publish(cert.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                Log.d("EXOHOME", "cert published")
+                Log.d(LOG_TAG, "cert published")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                Log.d("EXOHOME", "cert failed")
+                Log.d(LOG_TAG, "cert failed")
             }
         })
 
@@ -167,11 +167,11 @@ class ConnectFragment : Fragment() {
         val ota = OtaModel("idle")
         deviceClient.publish(ota.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                Log.d("EXOHOME", "ota published")
+                Log.d(LOG_TAG, "ota published")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                Log.d("EXOHOME", "ota failed")
+                Log.d(LOG_TAG, "ota failed")
             }
         })
 
@@ -196,11 +196,11 @@ class ConnectFragment : Fragment() {
 
         deviceClient.publish(schedules.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                Log.d("EXOHOME", "schedules published")
+                Log.d(LOG_TAG, "schedules published")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                Log.d("EXOHOME", "schedules failed")
+                Log.d(LOG_TAG, "schedules failed")
             }
         })
 
@@ -218,11 +218,11 @@ class ConnectFragment : Fragment() {
         val statesModel = StatesModel(states)
         deviceClient.publish(statesModel.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                Log.d("EXOHOME", "states published")
+                Log.d(LOG_TAG, "states published")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                Log.d("EXOHOME", "states failed")
+                Log.d(LOG_TAG, "states failed")
             }
         })
 
@@ -231,11 +231,11 @@ class ConnectFragment : Fragment() {
             val tokenModel = TokenModel(it)
             deviceClient.publish(tokenModel.createResourceCommand(), object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    Log.d("EXOHOME", "token published")
+                    Log.d(LOG_TAG, "token published")
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                    Log.d("EXOHOME", "token failed")
+                    Log.d(LOG_TAG, "token failed")
                 }
             })
         }
@@ -275,7 +275,8 @@ class ConnectFragment : Fragment() {
             createNewDeviceId()
         }
 
-        vToken.setText(SharedPrefHandler.getDeviceProvisionToken(context!!))
+
+        vToken.setText(SharedPrefHandler.getDeviceToken(context!!))
 
         vConnect.setOnClickListener {
             context?.let {
@@ -310,7 +311,7 @@ class ConnectFragment : Fragment() {
         }
 
         vGenId.setOnClickListener {
-            SharedPrefHandler.setDeviceProvisionToken(context!!, "")
+            SharedPrefHandler.setDeviceToken(context!!, "")
             createNewDeviceId()
         }
 
@@ -319,6 +320,8 @@ class ConnectFragment : Fragment() {
             val value = vStateValue.text.toString()
             sendStateValue(name, value as Any)
         }
+
+        showState(false)
     }
 
     private fun sendStateValue(name: String, value: Any) {
@@ -366,11 +369,11 @@ class ConnectFragment : Fragment() {
     }
 
     private fun doConnect() {
-        SharedPrefHandler.getDeviceProvisionToken(context!!)?.let {
+        SharedPrefHandler.getDeviceToken(context!!)?.let {
             if (it.isEmpty()) {
                 deviceClient.connect(listener = mqttConnectListener)
             } else {
-                deviceClient.connect(deviceToken = vToken.text.toString(), listener = mqttConnectListener)
+                deviceClient.connect(deviceToken = it, listener = mqttConnectListener)
             }
         }
 
@@ -381,8 +384,10 @@ class ConnectFragment : Fragment() {
         if (vToken.text.toString().isNotEmpty()) {
             // We don't need provision when provision token is already available
             vProvision.isEnabled = false
+            vConnect.setText(R.string.connect_with_token)
         } else {
             vProvision.isEnabled = connected
+            vConnect.setText(R.string.connect_without_token)
         }
         vSendState.isEnabled = connected
         vSendState.setBackgroundColor(if (connected) Color.GREEN else Color.RED)

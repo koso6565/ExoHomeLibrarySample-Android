@@ -67,7 +67,7 @@ class LoginFragment : Fragment() {
 
         vEmail.setText(SharedPrefHandler.getEmail(context!!))
         vPw.setText(SharedPrefHandler.getPassword(context!!))
-        vToken.setText(SharedPrefHandler.getSessionToken(context!!))
+//        vToken.setText(SharedPrefHandler.getSessionToken(context!!))
         vProvisionToken.setText(SharedPrefHandler.getOwnerProvisionToken(context!!))
 
         vLogin.setOnClickListener {
@@ -88,7 +88,7 @@ class LoginFragment : Fragment() {
                         val json = response.body!!.string()
                         val r = SessionResponseJsonAdapter(moshi).fromJson(json)
                         r?.let{
-                            vToken.setText(it.token)
+//                            vToken.setText(it.token)
 
                             handleSessionTokenAvailable(it.token)
                         }
@@ -99,7 +99,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun handleSessionTokenAvailable(token: String) {
-        SharedPrefHandler.setSessionToken(context!!, token)
+//        SharedPrefHandler.setSessionToken(context!!, token)
         webSocketClient = object: WebSocketClient(URI.create("wss://koso.apps.exosite.io/api:1/phone")){
             override fun onOpen(handshakedata: ServerHandshake?) {
                 val request = """{"id":1, "request":"login", "data":{"token":"$token"}}"""
