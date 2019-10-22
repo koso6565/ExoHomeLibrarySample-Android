@@ -48,10 +48,12 @@ class ConnectFragment : Fragment() {
     private val mqttConnectListener = object : IMqttActionListener {
         override fun onSuccess(asyncActionToken: IMqttToken?) {
             showState(true)
+            vDeviceProgressBar.visibility = View.INVISIBLE
         }
 
         override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
             showState(false)
+            vDeviceProgressBar.visibility = View.INVISIBLE
         }
 
     }
@@ -73,16 +75,18 @@ class ConnectFragment : Fragment() {
                                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                                     Toast.makeText(context, "owner acked", Toast.LENGTH_SHORT)
                                         .show()
+                                    vDeviceProgressBar.visibility = View.INVISIBLE
                                 }
 
                                 override fun onFailure(
                                     asyncActionToken: IMqttToken?,
                                     exception: Throwable?
                                 ) {
-
+                                    vDeviceProgressBar.visibility = View.INVISIBLE
                                 }
 
                             })
+                        vDeviceProgressBar.visibility = View.VISIBLE
                     }
                 }
             }
@@ -105,11 +109,14 @@ class ConnectFragment : Fragment() {
             deviceClient.connect(deviceToken = token, listener = object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     publishRestInfo(token)
+                    vDeviceProgressBar.visibility = View.INVISIBLE
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    vDeviceProgressBar.visibility = View.INVISIBLE
                 }
             })
+            vDeviceProgressBar.visibility = View.INVISIBLE
         }
     }
 
@@ -374,6 +381,7 @@ class ConnectFragment : Fragment() {
     }
 
     private fun doConnect() {
+        vDeviceProgressBar.visibility = View.VISIBLE
         SharedPrefHandler.getDeviceToken(context!!)?.let {
             if (it.isEmpty()) {
                 deviceClient.connect(listener = mqttConnectListener)
@@ -396,8 +404,6 @@ class ConnectFragment : Fragment() {
         }
         vSendState.isEnabled = connected
         vSendState.setBackgroundColor(if (connected) Color.GREEN else Color.RED)
-
-
     }
 
 

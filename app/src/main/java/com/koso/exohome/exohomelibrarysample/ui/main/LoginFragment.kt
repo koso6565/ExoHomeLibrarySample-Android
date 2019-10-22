@@ -76,6 +76,7 @@ class LoginFragment : Fragment() {
 
         vLogin.setOnClickListener {
             if (validateData()) {
+                vPhoneProgressBar.visibility = View.VISIBLE
                 SharedPrefHandler.setEmail(context!!, vEmail.text.toString())
                 SharedPrefHandler.setPassword(context!!, vPw.text.toString())
                 val body =
@@ -96,6 +97,7 @@ class LoginFragment : Fragment() {
 
                             handleSessionTokenAvailable(it.token)
                         }
+                        vPhoneProgressBar.visibility = View.INVISIBLE
                     }
                 }
             }
