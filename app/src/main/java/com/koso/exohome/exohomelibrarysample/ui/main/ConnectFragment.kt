@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -241,6 +242,10 @@ class ConnectFragment : Fragment() {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -391,5 +396,22 @@ class ConnectFragment : Fragment() {
         }
         vSendState.isEnabled = connected
         vSendState.setBackgroundColor(if (connected) Color.GREEN else Color.RED)
+
+
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        item?.let {
+            if (item.itemId == R.id.rest) {
+                vToken?.text?.clear()
+                deviceClient.close()
+                SharedPrefHandler.setDeviceToken(context!!, "")
+                showState(false)
+                return true
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 }

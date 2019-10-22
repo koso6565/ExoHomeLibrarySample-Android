@@ -2,6 +2,7 @@ package com.koso.exohome.exohomelibrarysample.ui.main
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -11,6 +12,7 @@ import com.koso.exohome.exohomelibrarysample.api.SessionResponseJsonAdapter
 import com.koso.exohome.exohomelibrarysample.api.WebSocketResponseJsonAdapter
 import com.koso.exohome.exohomelibrarysample.utils.SharedPrefHandler
 import com.squareup.moshi.Moshi
+import kotlinx.android.synthetic.main.fragment_connect.*
 import kotlinx.android.synthetic.main.fragment_login.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -48,6 +50,7 @@ class LoginFragment : Fragment() {
         arguments?.let {
 
         }
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -61,6 +64,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initViews()
+
     }
 
     private fun initViews() {
@@ -155,6 +159,26 @@ class LoginFragment : Fragment() {
         }
 
         return true
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        item?.let {
+            if (item.itemId == R.id.rest){
+                try {
+                    vEmail?.text?.clear()
+                    vPw?.text?.clear()
+                    vToken?.text?.clear()
+                    SharedPrefHandler.setEmail(context!!, "")
+                    SharedPrefHandler.setPassword(context!!, "")
+                    SharedPrefHandler.setOwnerProvisionToken(context!!, "")
+                    return true
+                }catch (e: NullPointerException){
+                    e.printStackTrace()
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     companion object {
