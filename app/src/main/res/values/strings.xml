@@ -3,7 +3,6 @@
     <string name="provision">Provision</string>
     <string name="connect_without_token">Connect without token</string>
     <string name="connect_with_token">Connect with token</string>
-    <string name="connect_title">ExoHome Lib.\nDemo</string>
     <string name="productId">Product id (replace it to yours)</string>
     <string name="title_activity_sample">SampleActivity</string>
 

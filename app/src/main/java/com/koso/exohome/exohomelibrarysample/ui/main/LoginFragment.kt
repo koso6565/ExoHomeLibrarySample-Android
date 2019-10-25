@@ -12,7 +12,6 @@ import com.koso.exohome.exohomelibrarysample.api.SessionResponseJsonAdapter
 import com.koso.exohome.exohomelibrarysample.api.WebSocketResponseJsonAdapter
 import com.koso.exohome.exohomelibrarysample.utils.SharedPrefHandler
 import com.squareup.moshi.Moshi
-import kotlinx.android.synthetic.main.fragment_connect.*
 import kotlinx.android.synthetic.main.fragment_login.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -71,8 +70,6 @@ class LoginFragment : Fragment() {
 
         vEmail.setText(SharedPrefHandler.getEmail(context!!))
         vPw.setText(SharedPrefHandler.getPassword(context!!))
-//        vToken.setText(SharedPrefHandler.getSessionToken(context!!))
-        vProvisionToken.setText(SharedPrefHandler.getOwnerProvisionToken(context!!))
 
         vLogin.setOnClickListener {
             if (validateData()) {
@@ -82,19 +79,19 @@ class LoginFragment : Fragment() {
                 val body =
                     """{"password":"${vPw.text}","email": "${vEmail.text}"}"""
 
-
+                vStatus.text = "Request session token"
                 GlobalScope.launch {
                     val response = okHttpClient.newCall(
                         Request.Builder().url("https://koso.apps.exosite.io/api:1/session")
                             .post(body.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull()))
                             .build()
                     ).execute()
+
                     withContext(Dispatchers.Main){
                         val json = response.body!!.string()
                         val r = SessionResponseJsonAdapter(moshi).fromJson(json)
                         r?.let{
-//                            vToken.setText(it.token)
-
+                            vStatus.text = "Request session token"
                             handleSessionTokenAvailable(it.token)
                         }
                         vPhoneProgressBar.visibility = View.INVISIBLE
@@ -105,24 +102,27 @@ class LoginFragment : Fragment() {
     }
 
     private fun handleSessionTokenAvailable(token: String) {
-//        SharedPrefHandler.setSessionToken(context!!, token)
+        vStatus.text = "Connect to cloud via webSocket"
         webSocketClient = object: WebSocketClient(URI.create("wss://koso.apps.exosite.io/api:1/phone")){
             override fun onOpen(handshakedata: ServerHandshake?) {
+                vStatus.text = "ExoHome cloud connected"
                 val request = """{"id":1, "request":"login", "data":{"token":"$token"}}"""
                 webSocketClient?.send(request)
             }
 
             override fun onClose(code: Int, reason: String?, remote: Boolean) {
-
+                vStatus.text = "ExoHome cloud disconnected"
             }
 
             override fun onMessage(message: String?) {
                 val response = WebSocketResponseJsonAdapter(moshi).fromJson(message)
                 response?.let {
                     if(it.response == "login" && it.status == "ok"){
+                        vStatus.text = "ExoHome cloud loged in"
                         handleLogedIn()
                     }else if(it.response == "provision_token" && it.status == "ok"){
                         response.data?.let {
+                            vStatus.text = "Got user provision token"
                             handleProvisionTokenAvailable(it.token)
                         }
                     }
@@ -139,7 +139,6 @@ class LoginFragment : Fragment() {
 
     private fun handleProvisionTokenAvailable(token: String) {
         SharedPrefHandler.setOwnerProvisionToken(context!!, token)
-        vProvisionToken.setText(token)
         Toast.makeText(context!!, "Gained provision token!", Toast.LENGTH_SHORT).show()
     }
 
@@ -170,7 +169,6 @@ class LoginFragment : Fragment() {
                 try {
                     vEmail?.text?.clear()
                     vPw?.text?.clear()
-                    vToken?.text?.clear()
                     SharedPrefHandler.setEmail(context!!, "")
                     SharedPrefHandler.setPassword(context!!, "")
                     SharedPrefHandler.setOwnerProvisionToken(context!!, "")

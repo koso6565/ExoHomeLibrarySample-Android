@@ -18,6 +18,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             >
             <EditText
                 android:id="@+id/vEmail"
@@ -45,55 +46,32 @@
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/vTokenLayout"-->
-<!--            android:layout_width="200dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/vPwLayout"-->
-<!--            app:layout_constraintStart_toStartOf="@id/vEmailLayout"-->
-<!--            app:layout_constraintEnd_toEndOf="@id/vEmailLayout"-->
-<!--            >-->
-<!--            <EditText-->
-<!--                android:id="@+id/vToken"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:singleLine="true"-->
-<!--                android:editable="false"-->
-<!--                android:hint="Session token"-->
-<!--                />-->
 
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/vProvisionTokenLayout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/vPwLayout"
-            app:layout_constraintStart_toStartOf="@id/vEmailLayout"
-            app:layout_constraintEnd_toEndOf="@id/vEmailLayout"
-            >
-            <EditText
-                android:id="@+id/vProvisionToken"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:editable="false"
-                android:hint="Provision token"
-                />
-
-        </com.google.android.material.textfield.TextInputLayout>
         <Button
             android:id="@+id/vLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Log in"
-            app:layout_constraintStart_toStartOf="@id/vEmailLayout"
-            app:layout_constraintTop_toBottomOf="@id/vProvisionTokenLayout"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/vPwLayout"
+            />
+        <TextView
+            android:id="@+id/vStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/vLogin"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text = "the status tip"
             />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="24sp"
+            android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toTopOf="@id/vEmailLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

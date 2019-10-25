@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
         android:layout_marginBottom="36dp"
-        android:text="@string/connect_title"
+        android:text="Device Side\nDemo"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -61,29 +61,14 @@
         app:layout_constraintBottom_toBottomOf="@id/dIdInputLayout"
         app:layout_constraintStart_toEndOf="@id/dIdInputLayout"
         />
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tokenInputLayout"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dIdInputLayout">
 
-        <EditText
-            android:id="@+id/vToken"
-            android:layout_width="260dp"
-            android:layout_height="80dp"
-            android:editable="false"
-            android:hint="Token"
-            android:text="" />
-    </com.google.android.material.textfield.TextInputLayout>
     <Button
         android:id="@+id/vConnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/connect_without_token"
-        app:layout_constraintTop_toBottomOf="@id/tokenInputLayout"
-        app:layout_constraintStart_toStartOf="@id/tokenInputLayout"
+        app:layout_constraintTop_toBottomOf="@id/dIdInputLayout"
+        app:layout_constraintStart_toStartOf="@id/dIdInputLayout"
 
         />
     <Button
@@ -96,14 +81,22 @@
         app:layout_constraintStart_toStartOf="@id/vConnect"
         />
 
+    <TextView
+        android:id="@+id/vStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/vProvision"
+        app:layout_constraintStart_toStartOf="@id/vProvision"
+        tools:text="the status"
+        />
     <LinearLayout
         android:id="@+id/state"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="36dp"
-        app:layout_constraintEnd_toEndOf="@id/tokenInputLayout"
-        app:layout_constraintStart_toStartOf="@id/tokenInputLayout"
+        android:layout_marginTop="56dp"
+        app:layout_constraintEnd_toEndOf="@id/dIdInputLayout"
+        app:layout_constraintStart_toStartOf="@id/dIdInputLayout"
         app:layout_constraintTop_toBottomOf="@id/vProvision">
 
         <EditText
