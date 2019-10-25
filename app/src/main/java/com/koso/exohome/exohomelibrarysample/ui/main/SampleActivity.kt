@@ -3,6 +3,7 @@ package com.koso.exohome.exohomelibrarysample.ui.main
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
@@ -40,12 +41,18 @@ class SampleActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if(item.itemId == R.id.rest){
-            SharedPrefHandler.setEmail(this, "")
-            SharedPrefHandler.setPassword(this, "")
-            SharedPrefHandler.setOwnerProvisionToken(this, "")
-            SharedPrefHandler.setDeviceToken(this, "")
+            AlertDialog.Builder(this)
+                .setMessage(R.string.restore_default)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    SharedPrefHandler.setEmail(this, "")
+                    SharedPrefHandler.setPassword(this, "")
+                    SharedPrefHandler.setOwnerProvisionToken(this, "")
+                    SharedPrefHandler.setDeviceToken(this, "")
+
+                    sectionsPagerAdapter?.onOptionSelected(item)
+                }.show()
+
         }
-        sectionsPagerAdapter?.onOptionSelected(item)
         return super.onOptionsItemSelected(item)
     }
 
