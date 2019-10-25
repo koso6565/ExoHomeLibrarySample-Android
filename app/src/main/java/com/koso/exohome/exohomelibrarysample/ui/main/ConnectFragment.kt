@@ -36,7 +36,7 @@ class ConnectFragment : Fragment() {
     /**
      * To handle the connection and communication with ExoHome server
      */
-    private lateinit var deviceClient: ExoHomeDeviceClient
+    private var deviceClient: ExoHomeDeviceClient? = null
 
     /**
      * The mock MAC Address for demo
@@ -70,7 +70,7 @@ class ConnectFragment : Fragment() {
                 } else if (topic.contains("owner")) {
                     message?.let {
                         val owner = OwnerModel(it.toString())
-                        deviceClient.publish(
+                        deviceClient?.publish(
                             owner.createResourceCommand(),
                             object : IMqttActionListener {
                                 override fun onSuccess(asyncActionToken: IMqttToken?) {
@@ -97,6 +97,7 @@ class ConnectFragment : Fragment() {
         override fun connectionLost(cause: Throwable?) {
             Log.d(LOG_TAG, "connection lost")
             showState(false)
+            vStatus.text = "Disconnected"
         }
 
         override fun deliveryComplete(token: IMqttDeliveryToken?) {
@@ -109,7 +110,7 @@ class ConnectFragment : Fragment() {
 
         context?.let {
             vStatus.text = "Connenct with token"
-            deviceClient.connect(deviceToken = token, listener = object : IMqttActionListener {
+            deviceClient?.connect(deviceToken = token, listener = object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     publishRestInfo(token)
                     vDeviceProgressBar.visibility = View.INVISIBLE
@@ -131,7 +132,7 @@ class ConnectFragment : Fragment() {
          **/
 
         val esh = EshModel("KOSO", "1.00", "KOSO001")
-        deviceClient.publish(esh.createResourceCommand(), object : IMqttActionListener {
+        deviceClient?.publish(esh.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 Log.d(LOG_TAG, "esh published")
                 vStatus.text = "Published esh info"
@@ -151,7 +152,7 @@ class ConnectFragment : Fragment() {
             mockMacAddr,
             "KOSO-${mockMacAddr.substring(9)}"
         )
-        deviceClient.publish(module.createResourceCommand(), object : IMqttActionListener {
+        deviceClient?.publish(module.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 Log.d(LOG_TAG, "module published")
                 vStatus.text = "Published module info"
@@ -167,7 +168,7 @@ class ConnectFragment : Fragment() {
             Fingerprint("1dfac17adf3867c9a28acb329de8d16d8b412d8b"),
             Validity("11/10/06", "11/10/31")
         )
-        deviceClient.publish(cert.createResourceCommand(), object : IMqttActionListener {
+        deviceClient?.publish(cert.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 Log.d(LOG_TAG, "cert published")
                 vStatus.text = "Published cert info"
@@ -180,7 +181,7 @@ class ConnectFragment : Fragment() {
 
         // ota
         val ota = OtaModel("idle")
-        deviceClient.publish(ota.createResourceCommand(), object : IMqttActionListener {
+        deviceClient?.publish(ota.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 Log.d(LOG_TAG, "ota published")
                 vStatus.text = "Published ota info"
@@ -210,7 +211,7 @@ class ConnectFragment : Fragment() {
             )
         )
 
-        deviceClient.publish(schedules.createResourceCommand(), object : IMqttActionListener {
+        deviceClient?.publish(schedules.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 Log.d(LOG_TAG, "schedules published")
                 vStatus.text = "Published schedules info"
@@ -233,7 +234,7 @@ class ConnectFragment : Fragment() {
         }
 
         val statesModel = StatesModel(states)
-        deviceClient.publish(statesModel.createResourceCommand(), object : IMqttActionListener {
+        deviceClient?.publish(statesModel.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 Log.d(LOG_TAG, "states published")
                 vStatus.text = "Published states info"
@@ -247,7 +248,7 @@ class ConnectFragment : Fragment() {
         // token
         SharedPrefHandler.getOwnerProvisionToken(context!!)?.let {
             val tokenModel = TokenModel(it)
-            deviceClient.publish(tokenModel.createResourceCommand(), object : IMqttActionListener {
+            deviceClient?.publish(tokenModel.createResourceCommand(), object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     Log.d(LOG_TAG, "token published")
                     vStatus.text = "Published token info"
@@ -279,9 +280,7 @@ class ConnectFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if(::deviceClient.isInitialized){
-            deviceClient.close()
-        }
+        deviceClient?.close()
     }
     private fun registerConnectState() {
         connectState.observe(
@@ -304,8 +303,8 @@ class ConnectFragment : Fragment() {
         vConnect.setOnClickListener {
             context?.let {
 
-                if (::deviceClient.isInitialized && deviceClient.isConnected()) {
-                    deviceClient.disconnect()
+                if (deviceClient != null && deviceClient!!.isConnected()) {
+                    deviceClient?.disconnect()
                     vStatus.text = "Disconnected"
                 } else {
                     SharedPrefHandler.getOwnerProvisionToken(context!!)
@@ -351,7 +350,7 @@ class ConnectFragment : Fragment() {
     private fun sendStateValue(name: String, value: Any) {
         val map = HashMap<String, Any>()
         map.put(name, value)
-        deviceClient.publish(
+        deviceClient?.publish(
             StatesModel(map).createResourceCommand(),
             object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
@@ -374,12 +373,11 @@ class ConnectFragment : Fragment() {
 
         vStatus.text = "Publish provision info"
         assert(vDeviceId.text.toString()!!.toByteArray().size == 24)
-        deviceClient.publish(
+        deviceClient?.publish(
             ProvisionCommand(vDeviceId.text.toString()),
             object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     Log.d(LOG_TAG, asyncActionToken?.response?.payload?.decodeToString() ?: "null")
-                    Toast.makeText(context, "provision success", Toast.LENGTH_SHORT).show()
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -397,40 +395,46 @@ class ConnectFragment : Fragment() {
         vDeviceProgressBar.visibility = View.VISIBLE
         SharedPrefHandler.getDeviceToken(context!!)?.let {
             if (it.isEmpty()) {
-                deviceClient.connect(listener = mqttConnectListener)
+                deviceClient?.connect(listener = mqttConnectListener)
                 vStatus.text = "Connect without token"
             } else {
-                deviceClient.connect(deviceToken = it, listener = mqttConnectListener)
+                deviceClient?.connect(deviceToken = it, listener = mqttConnectListener)
                 vStatus.text = "Connect with token"
             }
         }
-
     }
 
-    private fun showState(connected: Boolean) {
-        vConnect.isEnabled = true
-        SharedPrefHandler.getDeviceToken(context!!)?.let { token ->
-            if (token.isNotEmpty()) {
-                // We don't need provision when provision token is already available
-                vProvision.isEnabled = false
-                vConnect.setText(R.string.connect_with_token)
-            } else {
-                vProvision.isEnabled = connected
-                vConnect.setText(R.string.connect_without_token)
+    private fun showState(connected: Boolean){
+        context?.let{context ->
+            SharedPrefHandler.getDeviceToken(context)?.let { token ->
+                if (token.isNotEmpty()) {
+                    // We don't need provision when provision token is already available
+                    vProvision.isEnabled = false
+                    vConnect.setText(R.string.connect_with_token)
+                } else {
+                    vProvision.isEnabled = connected
+                    vConnect.setText(R.string.connect_without_token)
+                }
             }
+            vSendState.isEnabled = connected
+            vSendState.setBackgroundColor(if (connected) Color.GREEN else Color.RED)
+            vConnect.isEnabled = true
         }
 
-        vSendState.isEnabled = connected
-        vSendState.setBackgroundColor(if (connected) Color.GREEN else Color.RED)
     }
 
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         item?.let {
             if (item.itemId == R.id.rest) {
-                deviceClient.close()
-                SharedPrefHandler.setDeviceToken(context!!, "")
-                showState(false)
+                deviceClient?.close()
+                try {
+                    showState(false)
+                    vStatus.text = ""
+                    createNewDeviceId()
+                }catch (e: IllegalStateException){
+                    e.printStackTrace()
+                }
                 return true
             }
         }

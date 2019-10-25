@@ -18,14 +18,12 @@ private val TAB_TITLES = arrayOf(
 @ExperimentalStdlibApi
 class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
     FragmentPagerAdapter(fm) {
+    val fragments = listOf<Fragment>(LoginFragment.newInstance(), ConnectFragment.newInstance())
 
     @ExperimentalStdlibApi
     override fun getItem(position: Int): Fragment {
-        when(position){
-            0 -> return LoginFragment.newInstance()
-            1 -> return ConnectFragment.newInstance()
-        }
-        return ConnectFragment.newInstance()
+
+        return fragments[position]
     }
 
     override fun getPageTitle(position: Int): CharSequence? {

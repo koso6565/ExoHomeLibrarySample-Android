@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.koso.exohome.exohomelibrarysample.R
+import com.koso.exohome.exohomelibrarysample.utils.SharedPrefHandler
 import kotlinx.android.synthetic.main.activity_sample.*
 
 @ExperimentalStdlibApi
@@ -37,6 +38,13 @@ class SampleActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        if(item.itemId == R.id.rest){
+            SharedPrefHandler.setEmail(this, "")
+            SharedPrefHandler.setPassword(this, "")
+            SharedPrefHandler.setOwnerProvisionToken(this, "")
+            SharedPrefHandler.setDeviceToken(this, "")
+        }
         sectionsPagerAdapter?.onOptionSelected(item)
         return super.onOptionsItemSelected(item)
     }

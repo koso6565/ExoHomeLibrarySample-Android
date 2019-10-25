@@ -24,6 +24,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
+import java.util.*
+import kotlin.concurrent.timerTask
 
 
 /**
@@ -107,7 +109,11 @@ class LoginFragment : Fragment() {
             override fun onOpen(handshakedata: ServerHandshake?) {
                 vStatus.text = "ExoHome cloud connected"
                 val request = """{"id":1, "request":"login", "data":{"token":"$token"}}"""
-                webSocketClient?.send(request)
+
+                Timer().schedule(timerTask {
+                    webSocketClient?.send(request)
+                }, 1000)
+
             }
 
             override fun onClose(code: Int, reason: String?, remote: Boolean) {
@@ -169,9 +175,7 @@ class LoginFragment : Fragment() {
                 try {
                     vEmail?.text?.clear()
                     vPw?.text?.clear()
-                    SharedPrefHandler.setEmail(context!!, "")
-                    SharedPrefHandler.setPassword(context!!, "")
-                    SharedPrefHandler.setOwnerProvisionToken(context!!, "")
+
                     return true
                 }catch (e: NullPointerException){
                     e.printStackTrace()
