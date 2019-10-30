@@ -1,5 +1,7 @@
 package com.koso.exohome.exohomelibrarysample.ui.main
 
+import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -19,6 +21,7 @@ import com.koso.exohome.library.command.ProvisionCommand
 import com.koso.exohome.library.prodresources.*
 import kotlinx.android.synthetic.main.fragment_connect.*
 import org.eclipse.paho.client.mqttv3.*
+
 
 @ExperimentalStdlibApi
 class ConnectFragment : Fragment() {
@@ -43,7 +46,24 @@ class ConnectFragment : Fragment() {
      */
     private val mockMacAddr = "0a86dda0514b"
 
+    /**
+     * The connection state live data
+     */
     private val connectState = MutableLiveData<Boolean>().apply { postValue(false) }
+
+    private val preferenceChangedListener = object: SharedPreferences.OnSharedPreferenceChangeListener{
+        override fun onSharedPreferenceChanged(
+            sharedPreferences: SharedPreferences?,
+            key: String?
+        ) {
+            when(key){
+                "device_token" -> vDeviceToken.setText(SharedPrefHandler.getDeviceToken(context!!))
+                "deviceId" -> vDeviceId.setText(SharedPrefHandler.getDeviceId(context!!))
+                else -> {}
+            }
+        }
+
+    }
 
     private val mqttConnectListener = object : IMqttActionListener {
         override fun onSuccess(asyncActionToken: IMqttToken?) {
@@ -263,13 +283,14 @@ class ConnectFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
+        SharedPrefHandler.registerListener(context!!, preferenceChangedListener)
         return inflater.inflate(R.layout.fragment_connect, container, false)
     }
 
@@ -279,9 +300,12 @@ class ConnectFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
+        SharedPrefHandler.unregisterListener(context!!, preferenceChangedListener)
         deviceClient?.close()
+        super.onDestroyView()
     }
+
+
     private fun registerConnectState() {
         connectState.observe(
             this,
@@ -297,6 +321,10 @@ class ConnectFragment : Fragment() {
             vDeviceId.setText(id)
         } else {
             createNewDeviceId()
+        }
+
+        if(SharedPrefHandler.getDeviceToken(context!!).isNotEmpty()){
+            vDeviceToken.setText( SharedPrefHandler.getDeviceToken(context!!))
         }
 
 
@@ -344,6 +372,19 @@ class ConnectFragment : Fragment() {
             sendStateValue(name, value as Any)
         }
 
+        vShare.setOnClickListener{
+            val shareBody = vDeviceToken.text
+            val sharingIntent = Intent(Intent.ACTION_SEND)
+            sharingIntent.type = "text/plain"
+            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, R.string.share)
+            sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody)
+            startActivity(
+                Intent.createChooser(
+                    sharingIntent, getString(R.string.share)
+                )
+            )
+        }
+
         showState(false)
     }
 
@@ -365,7 +406,6 @@ class ConnectFragment : Fragment() {
 
     private fun createNewDeviceId() {
         val deviceId = DeviceIdGenerator.createId(mockMacAddr) // given a default mac address
-        vDeviceId.setText(deviceId)
         SharedPrefHandler.setDeviceId(context!!, deviceId)
     }
 

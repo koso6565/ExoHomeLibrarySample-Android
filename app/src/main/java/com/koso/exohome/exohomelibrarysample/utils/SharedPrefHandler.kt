@@ -22,6 +22,15 @@ class SharedPrefHandler {
             ).edit()
         }
 
+        fun registerListener(context: Context, listener: SharedPreferences.OnSharedPreferenceChangeListener){
+            getSharedPrefences(context).registerOnSharedPreferenceChangeListener(listener)
+        }
+
+        fun unregisterListener(context: Context, listener: SharedPreferences.OnSharedPreferenceChangeListener){
+            getSharedPrefences(context).unregisterOnSharedPreferenceChangeListener(listener)
+        }
+
+
         fun getDeviceId(context: Context): String {
             return try {
                 getSharedPrefences(context).getString("deviceId", "")!!
@@ -51,11 +60,11 @@ class SharedPrefHandler {
         }
 
         fun setDeviceToken(context: Context, token: String) {
-            getEditor(context).putString("device_owner", token).apply()
+            getEditor(context).putString("device_token", token).apply()
         }
 
-        fun getDeviceToken(context: Context): String?{
-            return getSharedPrefences(context).getString("device_owner", "")
+        fun getDeviceToken(context: Context): String{
+            return getSharedPrefences(context).getString("device_token", "")!!
         }
 
         // Setter of owner(phone) provision token
@@ -64,8 +73,8 @@ class SharedPrefHandler {
         }
 
         // Getter of owner(phone) provision token
-        fun getOwnerProvisionToken(context: Context): String? {
-            return getSharedPrefences(context).getString("owner_provision_token", "")
+        fun getOwnerProvisionToken(context: Context): String {
+            return getSharedPrefences(context).getString("owner_provision_token", "")!!
         }
     }
 }
