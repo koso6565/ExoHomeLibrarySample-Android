@@ -24,8 +24,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
-import java.util.*
-import kotlin.concurrent.timerTask
 
 
 /**
@@ -107,33 +105,34 @@ class LoginFragment : Fragment() {
         vStatus.text = "Connect to cloud via webSocket"
         webSocketClient = object: WebSocketClient(URI.create("wss://koso.apps.exosite.io/api:1/phone")){
             override fun onOpen(handshakedata: ServerHandshake?) {
-                vStatus.text = "ExoHome cloud connected"
-                val request = """{"id":1, "request":"login", "data":{"token":"$token"}}"""
-
-                Timer().schedule(timerTask {
+                vStatus.post{
+                    vStatus.text = "ExoHome cloud connected"
+                    val request = """{"id":1, "request":"login", "data":{"token":"$token"}}"""
                     webSocketClient?.send(request)
-                }, 1000)
-
+                }
             }
 
             override fun onClose(code: Int, reason: String?, remote: Boolean) {
-                vStatus.text = "ExoHome cloud disconnected"
+                vStatus.post{
+                    vStatus.text = "ExoHome cloud disconnected"
+                }
             }
 
             override fun onMessage(message: String?) {
                 val response = WebSocketResponseJsonAdapter(moshi).fromJson(message)
                 response?.let {
-                    if(it.response == "login" && it.status == "ok"){
-                        vStatus.text = "ExoHome cloud loged in"
-                        handleLogedIn()
-                    }else if(it.response == "provision_token" && it.status == "ok"){
-                        response.data?.let {
-                            vStatus.text = "Got user provision token"
-                            handleProvisionTokenAvailable(it.token)
+                    vStatus.post{
+                        if(it.response == "login" && it.status == "ok"){
+                            vStatus.text = "ExoHome cloud loged in"
+                            handleLogedIn()
+                        }else if(it.response == "provision_token" && it.status == "ok"){
+                            response.data?.let {
+                                vStatus.text = "Got user provision token"
+                                handleProvisionTokenAvailable(it.token)
+                            }
                         }
                     }
                 }
-
             }
 
             override fun onError(ex: Exception?) {

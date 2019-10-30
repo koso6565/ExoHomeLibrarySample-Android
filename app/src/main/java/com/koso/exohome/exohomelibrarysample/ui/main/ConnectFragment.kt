@@ -410,15 +410,26 @@ class ConnectFragment : Fragment() {
                 if (token.isNotEmpty()) {
                     // We don't need provision when provision token is already available
                     vProvision.isEnabled = false
-                    vConnect.setText(R.string.connect_with_token)
+
+                    if (connected) {
+                        vConnect.setText(R.string.disconnect)
+                    } else {
+                        vConnect.setText(R.string.connect_with_token)
+                    }
                 } else {
                     vProvision.isEnabled = connected
-                    vConnect.setText(R.string.connect_without_token)
+
+                    if(connected){
+                        vConnect.setText(R.string.disconnect)
+                    }else{
+                        vConnect.setText(R.string.connect_without_token)
+                    }
                 }
             }
             vSendState.isEnabled = connected
             vSendState.setBackgroundColor(if (connected) Color.GREEN else Color.RED)
             vConnect.isEnabled = true
+
         }
 
     }
