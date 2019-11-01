@@ -68,14 +68,14 @@ class ConnectFragment : Fragment() {
     private val mqttConnectListener = object : IMqttActionListener {
         override fun onSuccess(asyncActionToken: IMqttToken?) {
             showState(true)
-            vDeviceProgressBar.visibility = View.INVISIBLE
-            vStatus.text = "Connected"
+            vDeviceProgressBar?.visibility = View.INVISIBLE
+            vStatus?.text = "Connected"
         }
 
         override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
             showState(false)
-            vDeviceProgressBar.visibility = View.INVISIBLE
-            vStatus.text = "Connect fail"
+            vDeviceProgressBar?.visibility = View.INVISIBLE
+            vStatus?.text = "Connect fail"
         }
 
     }
