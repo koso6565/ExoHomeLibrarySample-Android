@@ -13,12 +13,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.koso.exohome.DeviceIdGenerator
+import com.koso.exohome.ExoHomeDeviceClient
+import com.koso.exohome.command.ProvisionCommand
 import com.koso.exohome.exohomelibrarysample.R
 import com.koso.exohome.exohomelibrarysample.utils.SharedPrefHandler
-import com.koso.exohome.library.DeviceIdGenerator
-import com.koso.exohome.library.ExoHomeDeviceClient
-import com.koso.exohome.library.command.ProvisionCommand
-import com.koso.exohome.library.prodresources.*
+import com.koso.exohome.prodresources.*
 import kotlinx.android.synthetic.main.fragment_connect.*
 import org.eclipse.paho.client.mqttv3.*
 

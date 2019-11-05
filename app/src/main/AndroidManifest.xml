@@ -25,7 +25,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.koso.exohome.library.service.MqttService"></service>
+        <service android:name="com.koso.exohome.service.MqttService"></service>
     </application>
 
 </manifest>

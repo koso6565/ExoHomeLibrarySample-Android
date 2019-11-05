@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:hint="@string/productId"
-            android:text="l55gbjzaaytw00000" />
+            android:text="xxxxxxx" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout

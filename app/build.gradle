@@ -6,6 +6,10 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'kotlin-kapt'
 
+repositories {
+    maven{ url  'https://dl.bintray.com/koso6565/maven' }
+}
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -35,7 +39,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':exohomelib')
+//    implementation project(':exohomelib')
+    implementation 'com.koso.exohome:deviceclient:0.1.0'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation 'androidx.appcompat:appcompat:1.0.2'
