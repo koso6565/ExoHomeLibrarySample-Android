@@ -8,6 +8,29 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="restore_default">Do you want to restore the default settings?</string>
-    <string name="disconnect">Disconnect</string>
     <string name="share">Share</string>
+
+    <string name="unlogin">Unlogin</string>
+    <string name="logging_in">Logging in</string>
+    <string name="gain_session_token">Gaining session token</string>
+    <string name="got_owner_provision_token">Got owner provision token</string>
+    <string name="gain_owner_provision_token">Gaining owner provision token</string>
+    <string name="invalidate_data">Invalidate data</string>
+    <string name="device_registration">Device registration</string>
+    <string name="provision_completed">Provision completed</string>
+    <string name="gain_device_provision_token">Gaining device provision token</string>
+    <string name="sending_info">Sending rest info</string>
+
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connected">Connected</string>
+    <string name="connecting">Connecting</string>
+
+    <string name="user_login">User Login</string>
+    <string name="login">Login</string>
+    <string name="account">Account</string>
+    <string name="password">Password</string>
+    <string name="product_id">Product id</string>
+    <string name="device_id">Device id</string>
+    <string name="connect_to_exohome">Connect to ExoHome</string>
 </resources>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/vConstraintLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/l_space"
+    tools:context=".ui.MainActivity"
+    android:keepScreenOn="true"
+    >
+
+    <Button
+        android:id="@+id/vConnectExohome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/connect_to_exohome"
+        android:textSize="24sp"
+        android:fontFamily="sans-serif-condensed-light"
+        android:drawableLeft="@drawable/ic_remove_circle_black_24dp"
+        android:drawablePadding="@dimen/l_space"
+        android:background="?android:selectableItemBackground"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="0.4"/>
+
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/background"
+        app:layout_constraintTop_toBottomOf="parent"
+        >
+        <TextView
+            android:id="@+id/vLog"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
