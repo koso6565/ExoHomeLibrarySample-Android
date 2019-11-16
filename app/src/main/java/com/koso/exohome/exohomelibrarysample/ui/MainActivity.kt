@@ -11,6 +11,9 @@ import com.koso.exohome.exohomelibrarysample.R
 import com.koso.exohome.exohomelibrarysample.mgr.ExoHomeConnectionManager
 import com.koso.exohome.exohomelibrarysample.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import org.eclipse.paho.client.mqttv3.IMqttActionListener
+import org.eclipse.paho.client.mqttv3.IMqttToken
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -25,18 +28,34 @@ class MainActivity : AppCompatActivity() {
     private val constraintSet2 = ConstraintSet()
 
     private var isExoHomeReady = false
+    private val listener = object: IMqttActionListener{
+        override fun onSuccess(asyncActionToken: IMqttToken?) {
 
+        }
+
+        override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initViews()
         registerConnectState()
+        registerIncomingMessage()
+    }
+
+    private fun registerIncomingMessage() {
+        ExoHomeConnectionManager.instance.messageArriveLiveData.observe(this, Observer {
+            appendLogs("Received topic ${it[0]} - ${it[1]}")
+        })
     }
 
     private fun registerConnectState() {
         ExoHomeConnectionManager.instance.connectStateLiveData.observe(this, Observer {
-
+            appendLogs(it.name)
             when(it){
                 ExoHomeConnectionManager.ConnectState.Connected -> {
                     vConnectExohome.setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -69,8 +88,6 @@ class MainActivity : AppCompatActivity() {
             showLogger(isExoHomeReady)
 
         })
-
-
     }
 
 
@@ -82,7 +99,12 @@ class MainActivity : AppCompatActivity() {
             LoginActivity.launch(this)
         }
 
-
+        vSend.setOnClickListener{
+            val name = vTopic.text.toString()
+            val value = vValue.text.toString()
+            ExoHomeConnectionManager.instance.sendStateValue(name, value, listener)
+            appendLogs("Send $name : $value")
+        }
     }
 
     private fun showLogger(show: Boolean){
@@ -92,7 +114,20 @@ class MainActivity : AppCompatActivity() {
             constraintSet2.applyTo(vConstraintLayout)
         } else {
             constraintSet1.applyTo(vConstraintLayout)
+            vLog.text = ""
         }
+    }
+
+    private fun appendLogs(msg: String){
+        Calendar.getInstance().let {
+            var text = vLog.text.toString()
+            text = "${it.get(Calendar.HOUR)}:${it.get(Calendar.MINUTE)}:${it.get(Calendar.SECOND)}  $msg \n$text"
+            if (text.length > 10000) {
+                text.substring(0, 10000)
+            }
+            vLog.text = text
+        }
+
     }
 
 }

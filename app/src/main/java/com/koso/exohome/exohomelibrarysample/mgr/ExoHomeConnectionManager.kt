@@ -1,5 +1,6 @@
 package com.koso.exohome.exohomelibrarysample.mgr
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.koso.exohome.ExoHomeDeviceClient
@@ -58,36 +59,71 @@ class ExoHomeConnectionManager {
         override fun messageArrived(topic: String?, message: MqttMessage?) {
 
             topic?.let {
-                if (topic.contains("provision")) {
-                    SharedPrefHandler.setDeviceToken(message.toString())
-                    handleProvisionSuccess(message.toString())
-                } else if (topic.contains("owner")) {
-                    message?.let {
-                        val owner = OwnerModel(it.toString())
-                        deviceClient?.publish(
-                            owner.createResourceCommand(),
-                            object : IMqttActionListener {
-                                override fun onSuccess(asyncActionToken: IMqttToken?) {
+                _messageArriveListener.value = arrayOf(topic, message.toString())
 
-                                }
 
-                                override fun onFailure(
-                                    asyncActionToken: IMqttToken?,
-                                    exception: Throwable?
-                                ) {
-                                }
-
-                            })
+                when{
+                    topic.contains("provision") -> {
+                        SharedPrefHandler.setDeviceToken(message.toString())
+                        handleProvisionSuccess(message.toString())
                     }
-                } else if(topic.contains("action")){
-                    message?.let {
-                        val moshi = Moshi.Builder().build()
-                        var adapter = ActionSetModelJsonAdapter(moshi)
-                        val model  = adapter.fromJson(message.toString())
+                    topic.contains("owner") -> {
+                        message?.let {
+                            val owner = OwnerModel(it.toString())
+                            deviceClient?.publish(
+                                owner.createResourceCommand(),
+                                object : IMqttActionListener {
+                                    override fun onSuccess(asyncActionToken: IMqttToken?) {
+
+                                    }
+
+                                    override fun onFailure(
+                                        asyncActionToken: IMqttToken?,
+                                        exception: Throwable?
+                                    ) {
+                                    }
+
+                                })
+                        }
+                    }
+                    topic.contains("action") -> {
+                        message?.let { msg ->
+                            val moshi = Moshi.Builder().build()
+                            val adapter = ActionModelJsonAdapter(moshi)
+                            val model  = adapter.fromJson(msg.toString())
+                            model?.let { model ->
+                                if(model.request == "set"){
+                                    val sadapter = ActionSetModelJsonAdapter(moshi)
+                                    val data = sadapter.fromJson(msg.toString())
+                                    if(data != null) {
+
+                                        val command = ActionResponseModel(model.id, message = "", code = "").createResourceCommand()
+
+                                        deviceClient?.publish(command, object: IMqttActionListener{
+                                            override fun onSuccess(asyncActionToken: IMqttToken?) {
+                                                Log.d("exohome",asyncActionToken.toString())
+                                            }
+
+                                            override fun onFailure(
+                                                asyncActionToken: IMqttToken?,
+                                                exception: Throwable?
+                                            ) {
+                                                Log.d("exohome",asyncActionToken.toString())
+                                            }
+
+                                        })
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    else -> {
 
                     }
                 }
-                _messageArriveListener.value = arrayOf(topic, message.toString())
+
+
             }
 
         }
