@@ -1,6 +1,6 @@
 package com.koso.exohome.exohomelibrarysample.mgr
 
-import android.util.Log
+import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.koso.exohome.ExoHomeDeviceClient
@@ -53,14 +53,15 @@ class ExoHomeConnectionManager {
     val messageArriveLiveData: LiveData<Array<String>> = _messageArriveListener
 
     /**
-     * Mqtt message listener
+     * The Mqtt message listener. This is important to handle some critical incoming message and provide the
+     * suitable response message to make sure that the communication flow continuously
      */
     private val mqttCallback = object : MqttCallback {
         override fun messageArrived(topic: String?, message: MqttMessage?) {
 
             topic?.let {
                 _messageArriveListener.value = arrayOf(topic, message.toString())
-
+                LoggerManager.instance.publish("Receive topic $topic - ${message.toString()}")
 
                 when{
                     topic.contains("provision") -> {
@@ -93,27 +94,11 @@ class ExoHomeConnectionManager {
                             val model  = adapter.fromJson(msg.toString())
                             model?.let { model ->
                                 if(model.request == "set"){
-                                    val sadapter = ActionSetModelJsonAdapter(moshi)
-                                    val data = sadapter.fromJson(msg.toString())
-                                    if(data != null) {
-
-                                        val command = ActionResponseModel(model.id, message = "", code = "").createResourceCommand()
-
-                                        deviceClient?.publish(command, object: IMqttActionListener{
-                                            override fun onSuccess(asyncActionToken: IMqttToken?) {
-                                                Log.d("exohome",asyncActionToken.toString())
-                                            }
-
-                                            override fun onFailure(
-                                                asyncActionToken: IMqttToken?,
-                                                exception: Throwable?
-                                            ) {
-                                                Log.d("exohome",asyncActionToken.toString())
-                                            }
-
-                                        })
-                                    }
+                                    handleActionSet(moshi, msg)
+                                } else if (model.request == "config") {
+                                    handleActionConfig(moshi, msg)
                                 }
+
                             }
 
                         }
@@ -136,6 +121,86 @@ class ExoHomeConnectionManager {
 
         }
 
+    }
+
+    /**
+     * Handle the message from ExoHome cloud that the topic is "$resource/action" and the request is equal
+     * to "config", then, we have to reply with topic "$fields" accordingly
+     */
+    private fun handleActionConfig(moshi: Moshi, msg: MqttMessage) {
+        val sadapter = ActionConfigModelJsonAdapter(moshi)
+        val data = sadapter.fromJson(msg.toString())
+        if (data != null) {
+            val command = FieldsModel(data.data.fields).createResourceCommand()
+            deviceClient?.publish(command, object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken?) {
+                    LoggerManager.instance.publish("Send topic $${command.name} - ${command.message}")
+                }
+
+                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    LoggerManager.instance.publish("Send topic $${command.name} failed")
+                }
+
+            })
+        }
+    }
+
+    /**
+     * Handle the message from ExoHome cloud that the topic is "$resource/action" and the request is equal
+     * to "set", then, we have to reply accordingly as follows
+     * 1. publish to "$resource/action" with empty string
+     * 2. execute action
+     * 3. publish to "$resource/result" with result payload
+     */
+    private fun handleActionSet(moshi: Moshi, msg: MqttMessage) {
+        val sadapter = ActionSetModelJsonAdapter(moshi)
+        val data = sadapter.fromJson(msg.toString())
+        if (data != null) {
+
+            // simulate the executing time
+            object :CountDownTimer(2000, 2000){
+                override fun onFinish() {
+                    // change the state after executing actions
+                    sendStateValue(data.data)
+
+
+
+                }
+
+                override fun onTick(millisUntilFinished: Long) {
+
+                }
+
+            }.start()
+
+
+            object :CountDownTimer(3000, 3000){
+                override fun onFinish() {
+                    // send success response
+                    val command =
+                        ActionSuccessResponseModel(id = data.id).createResourceCommand()
+
+                    deviceClient?.publish(command, object : IMqttActionListener {
+                        override fun onSuccess(asyncActionToken: IMqttToken?) {
+                            LoggerManager.instance.publish("Send topic $${command.name} - ${command.message}")
+                        }
+
+                        override fun onFailure(
+                            asyncActionToken: IMqttToken?,
+                            exception: Throwable?
+                        ) {
+                            LoggerManager.instance.publish("Send topic $${command.name} failed")
+                        }
+
+                    })
+                }
+
+                override fun onTick(millisUntilFinished: Long) {
+                }
+
+            }.start()
+
+        }
     }
 
     /**
@@ -189,14 +254,37 @@ class ExoHomeConnectionManager {
     }
 
 
-    fun sendStateValue(name: String, value: Any, listener: IMqttActionListener) {
+    fun sendStateValue(name: String, value: Any) {
         if(deviceClient != null && deviceClient!!.isConnected()) {
             val map = HashMap<String, Any>()
-            map.put(name, value)
+            map[name] = value
+            val command = StatesModel(map).createResourceCommand()
             deviceClient?.publish(
-                StatesModel(map).createResourceCommand(), listener
+                command, object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken?) {
+                        LoggerManager.instance.publish("Send topic $${command.name} - ${command.message}")
+                    }
+
+                    override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    }
+
+                }
             )
         }
+    }
+
+    fun sendStateValue(map: Map<String, Any>) {
+        val command = StatesModel(map).createResourceCommand()
+        deviceClient?.publish(
+            command, object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken?) {
+                    LoggerManager.instance.publish("Send topic $${command.name} - ${command.message}")
+                }
+
+                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                }
+            }
+        )
     }
 
     fun disconnect(){
@@ -218,15 +306,16 @@ class ExoHomeConnectionManager {
     private fun doProvision() {
         deviceId?.let {
             _connectStateLiveData.value = ConnectState.Provisioning
+            val command = ProvisionCommand(it)
             deviceClient?.publish(
-                ProvisionCommand(it),
+                command,
                 object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken?) {
-
+                        LoggerManager.instance.publish("Send topic $${command.topic()} - ${command.message()} failed")
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-
+                        LoggerManager.instance.publish("Send topic $${command.topic()} failed")
                     }
                 })
         }
@@ -257,6 +346,7 @@ class ExoHomeConnectionManager {
         val esh = EshModel("KOSO", "1.00", "KOSO001")
         deviceClient?.publish(esh.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
+                LoggerManager.instance.publish("Send topic $${esh.name()} - ${esh.message()}")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -275,6 +365,7 @@ class ExoHomeConnectionManager {
             )
             deviceClient?.publish(module.createResourceCommand(), object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
+                    LoggerManager.instance.publish("Send topic $${module.name()} - ${module.message()}")
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -290,6 +381,7 @@ class ExoHomeConnectionManager {
         )
         deviceClient?.publish(cert.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
+                LoggerManager.instance.publish("Send topic $${cert.name()} - ${cert.message()}")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -300,6 +392,7 @@ class ExoHomeConnectionManager {
         val ota = OtaModel("idle")
         deviceClient?.publish(ota.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
+                LoggerManager.instance.publish("Send topic $${ota.name()} - ${ota.message()}")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -327,6 +420,7 @@ class ExoHomeConnectionManager {
 
         deviceClient?.publish(schedules.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
+                LoggerManager.instance.publish("Send topic $${schedules.name()} - ${schedules.message()}")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -341,12 +435,13 @@ class ExoHomeConnectionManager {
             put("H03", 100)
             put("H04", 54)
             put("H05", 60)
-            put("H06", 1)
+            put("H06", false)
         }
 
         val statesModel = StatesModel(states)
         deviceClient?.publish(statesModel.createResourceCommand(), object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
+                LoggerManager.instance.publish("Send topic $${statesModel.name()} - ${statesModel.message()}")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -359,6 +454,7 @@ class ExoHomeConnectionManager {
             deviceClient?.publish(tokenModel.createResourceCommand(), object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     _connectStateLiveData.value = ConnectState.ProvisionComplete
+                    LoggerManager.instance.publish("Send topic $${tokenModel.name()} - ${tokenModel.message()}")
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {

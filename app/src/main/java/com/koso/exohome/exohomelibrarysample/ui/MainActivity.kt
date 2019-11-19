@@ -9,13 +9,15 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Observer
 import com.koso.exohome.exohomelibrarysample.R
 import com.koso.exohome.exohomelibrarysample.mgr.ExoHomeConnectionManager
+import com.koso.exohome.exohomelibrarysample.mgr.LoggerManager
 import com.koso.exohome.exohomelibrarysample.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttToken
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
+
+
     companion object {
         fun launch(context: Context) {
             val intent = Intent(context, MainActivity::class.java)
@@ -44,18 +46,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         initViews()
         registerConnectState()
-        registerIncomingMessage()
-    }
-
-    private fun registerIncomingMessage() {
-        ExoHomeConnectionManager.instance.messageArriveLiveData.observe(this, Observer {
-            appendLogs("Received topic ${it[0]} - ${it[1]}")
+        LoggerManager.instance._messageListener.observe(this, Observer {
+            vLog.text = "[${it[0]}]  \n${it[1]}\n${vLog.text}"
         })
     }
 
     private fun registerConnectState() {
         ExoHomeConnectionManager.instance.connectStateLiveData.observe(this, Observer {
-            appendLogs(it.name)
+            LoggerManager.instance.publish(it.name)
             when(it){
                 ExoHomeConnectionManager.ConnectState.Connected -> {
                     vConnectExohome.setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -102,8 +100,8 @@ class MainActivity : AppCompatActivity() {
         vSend.setOnClickListener{
             val name = vTopic.text.toString()
             val value = vValue.text.toString()
-            ExoHomeConnectionManager.instance.sendStateValue(name, value, listener)
-            appendLogs("Send $name : $value")
+            ExoHomeConnectionManager.instance.sendStateValue(name, value)
+
         }
     }
 
@@ -118,16 +116,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun appendLogs(msg: String){
-        Calendar.getInstance().let {
-            var text = vLog.text.toString()
-            text = "${it.get(Calendar.HOUR)}:${it.get(Calendar.MINUTE)}:${it.get(Calendar.SECOND)}  $msg \n$text"
-            if (text.length > 10000) {
-                text.substring(0, 10000)
-            }
-            vLog.text = text
-        }
 
-    }
 
 }
