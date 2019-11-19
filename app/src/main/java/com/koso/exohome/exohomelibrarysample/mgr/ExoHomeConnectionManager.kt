@@ -253,7 +253,6 @@ class ExoHomeConnectionManager {
         }
     }
 
-
     fun sendStateValue(name: String, value: Any) {
         if(deviceClient != null && deviceClient!!.isConnected()) {
             val map = HashMap<String, Any>()
