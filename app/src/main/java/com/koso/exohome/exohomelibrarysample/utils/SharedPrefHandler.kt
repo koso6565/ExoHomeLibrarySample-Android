@@ -1,7 +1,7 @@
 package com.koso.exohome.exohomelibrarysample.utils
 
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import com.koso.exohome.exohomelibrarysample.App
 
 class SharedPrefHandler {
@@ -75,9 +75,24 @@ class SharedPrefHandler {
             return getSharedPrefences().getString("owner_provision_token", "")!!
         }
 
-        fun clear() {
+        fun setMockMacAddress(address: String){
+            getEditor().putString("pref_mock_address", address).apply()
+        }
 
-            getSharedPrefences().edit().clear()
+        fun getMockMackAddress(): String{
+            return getSharedPrefences().getString("pref_mock_address", "0a86dda0514b")!!
+        }
+
+        fun setProductId(id: String){
+            getEditor().putString("pref_product_id", id).apply()
+        }
+
+        fun getProductId(): String{
+            return getSharedPrefences().getString("pref_product_id", "l55gbjzaaytw00000")!!
+        }
+
+        fun clear() {
+            getSharedPrefences().edit().clear().apply()
         }
     }
 }

@@ -38,7 +38,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/l_space"
         android:hint="@string/product_id"
-        android:text="l55gbjzaaytw00000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title" />
 

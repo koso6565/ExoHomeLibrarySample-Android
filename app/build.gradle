@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 repositories {
-    maven{ url  'https://dl.bintray.com/koso6565/maven' }
+    maven { url 'https://dl.bintray.com/koso6565/maven' }
 }
 
 android {
@@ -61,4 +61,7 @@ dependencies {
 
     // websocket
     implementation "org.java-websocket:Java-WebSocket:1.3.7"
+
+    // Preference
+    implementation "androidx.preference:preference:1.1.0"
 }

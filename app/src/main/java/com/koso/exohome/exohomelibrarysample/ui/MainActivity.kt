@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.transition.TransitionManager
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Observer
@@ -11,6 +13,7 @@ import com.koso.exohome.exohomelibrarysample.R
 import com.koso.exohome.exohomelibrarysample.mgr.ExoHomeConnectionManager
 import com.koso.exohome.exohomelibrarysample.mgr.LoggerManager
 import com.koso.exohome.exohomelibrarysample.ui.login.LoginActivity
+import com.koso.exohome.exohomelibrarysample.ui.settings.SettingsActivity
 import com.koso.exohome.exohomelibrarysample.utils.SharedPrefHandler
 import kotlinx.android.synthetic.main.activity_main.*
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
@@ -52,20 +55,24 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.activity_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId == R.id.settings){
+            SettingsActivity.launch(this)
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     private fun registerConnectState() {
         ExoHomeConnectionManager.instance.connectStateLiveData.observe(this, Observer {
             LoggerManager.instance.publish(it.name)
             when(it){
                 ExoHomeConnectionManager.ConnectState.Connected -> {
-                    vConnectExohome.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                        getDrawable(R.drawable.ic_check_circle_black_24dp),
-                        null,
-                        null,
-                        null
-                    )
-                    isExoHomeReady = true
-                }
-                ExoHomeConnectionManager.ConnectState.ProvisionComplete -> {
                     vConnectExohome.setCompoundDrawablesRelativeWithIntrinsicBounds(
                         getDrawable(R.drawable.ic_check_circle_black_24dp),
                         null,
@@ -91,6 +98,8 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun initViews() {
+        setSupportActionBar(vToolbar)
+
         constraintSet1.clone(vConstraintLayout)
         constraintSet2.clone(this, R.layout.activity_main_1)
 

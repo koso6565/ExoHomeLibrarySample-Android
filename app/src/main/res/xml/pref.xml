@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:defaultValue="l55gbjzaaytw00000"
+        android:key="pref_product_id"
+        android:summary="The ExoHome product id to be connect"
+        android:title="@string/product_id" />
+
+    <EditTextPreference
+        android:defaultValue="0a86dda0514b"
+        android:key="pref_mock_address"
+        android:summary="The mock mac address to be used to generate a device id"
+        android:title="@string/mock_mac_address" />
+
+    <Preference android:title="@string/reset_app"
+        android:key="reset"
+        android:summary="@string/reset_warning"
+        />
+</PreferenceScreen>

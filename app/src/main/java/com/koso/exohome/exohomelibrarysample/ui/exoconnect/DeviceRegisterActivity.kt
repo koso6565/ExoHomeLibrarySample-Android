@@ -23,7 +23,7 @@ class DeviceRegisterActivity : AppCompatActivity() {
     /**
      * The mock MAC Address for demo
      */
-    private val mockMacAddr = "0a86dda0514b"
+    private val mockMacAddr = SharedPrefHandler.getMockMackAddress()
 
     private var model: DeviceRegisterViewModel? = null
 
@@ -99,6 +99,7 @@ class DeviceRegisterActivity : AppCompatActivity() {
             createNewDeviceId()
         }
         vDeviceId.setText(SharedPrefHandler.getDeviceId())
+        vProductId.setText(SharedPrefHandler.getProductId())
 
         vConnect.setOnClickListener {
             if (dataValidate()) {

@@ -280,6 +280,9 @@ class ExoHomeConnectionManager {
                 mqttCallback
             )
             doConnect()
+
+            SharedPrefHandler.setProductId(productId)
+            SharedPrefHandler.setDeviceId(deviceId)
         }
     }
 
