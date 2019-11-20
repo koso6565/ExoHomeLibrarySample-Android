@@ -8,7 +8,7 @@ import com.koso.exohome.command.ProvisionCommand
 import com.koso.exohome.command.ResourceCommand
 import com.koso.exohome.exohomelibrarysample.App
 import com.koso.exohome.exohomelibrarysample.utils.SharedPrefHandler
-import com.koso.exohome.prodresources.*
+import com.koso.exohome.command.resourcemodel.*
 import com.squareup.moshi.Moshi
 import org.eclipse.paho.client.mqttv3.*
 
@@ -110,12 +110,29 @@ class ExoHomeConnectionManager {
                             val moshi = Moshi.Builder().build()
                             val adapter = ActionModelJsonAdapter(moshi)
                             val model  = adapter.fromJson(msg.toString())
+
                             model?.let { model ->
-                                if(model.request == "set"){
-                                    handleActionSet(moshi, msg)
-                                } else if (model.request == "config") {
-                                    handleActionConfig(moshi, msg)
+                                when(model.request){
+                                    "set" -> {
+                                        handleActionSet(moshi, msg)
+                                    }
+                                    "config" -> {
+                                        handleActionConfig(moshi, msg)
+                                    }
+                                    "report_config" -> {
+                                        //Todo handle the report_config request
+                                    }
+                                    "ota" -> {
+                                        //Todo handle the ota request
+                                    }
+                                    "schedule" -> {
+                                        //Todo handle the schedule request
+                                    }
+                                    "debug" -> {
+                                        //Todo handle the debug request
+                                    }
                                 }
+
 
                             }
 
@@ -170,45 +187,33 @@ class ExoHomeConnectionManager {
     private fun handleActionSet(moshi: Moshi, msg: MqttMessage) {
         val sadapter = ActionSetModelJsonAdapter(moshi)
         val data = sadapter.fromJson(msg.toString())
-        val map = HashMap<String, Any>()
-        map["H00"]=1234
-        map["H01"]=123
-        map["H02"]=122
-        map["H03"]=13
-        map["H04"]=50
-        map["H05"]=50
-        map["H06"]=1
-        map["H08"]=1000
+//        val map = HashMap<String, Any>()
+//        map["H00"]=1234
+//        map["H01"]=123
+//        map["H02"]=122
+//        map["H03"]=13
+//        map["H04"]=50
+//        map["H05"]=50
+//        map["H06"]=1
+//        map["H08"]=1000
 
 
 
         if (data != null) {
 
-            data.data.forEach{
-                map[it.key] = it.value
-            }
+//            data.data.forEach{
+//                map[it.key] = it.value
+//            }
 
             // simulate the executing time
             object :CountDownTimer(1000, 1000){
                 override fun onFinish() {
                     // change the state after executing actions
+                    sendStateValue(data.data)
 
-                    sendStateValue(map)
-
-                }
-
-                override fun onTick(millisUntilFinished: Long) {
-
-                }
-
-            }.start()
-
-
-            object :CountDownTimer(2000, 2000){
-                override fun onFinish() {
                     // send success response
                     val command =
-                        ActionSuccessResponseModel(id = data.id).createResourceCommand()
+                        ResultSuccessResponseModel(id = data.id).createResourceCommand()
 
                     deviceClient?.publish(command, object : IMqttActionListener {
                         override fun onSuccess(asyncActionToken: IMqttToken?) {
@@ -226,9 +231,21 @@ class ExoHomeConnectionManager {
                 }
 
                 override fun onTick(millisUntilFinished: Long) {
+
                 }
 
             }.start()
+
+
+//            object :CountDownTimer(2000, 2000){
+//                override fun onFinish() {
+//
+//                }
+//
+//                override fun onTick(millisUntilFinished: Long) {
+//                }
+//
+//            }.start()
 
         }
     }
@@ -467,7 +484,7 @@ class ExoHomeConnectionManager {
             put("H03", 100)
             put("H04", 54)
             put("H05", 60)
-            put("H06", false)
+            put("H06", 0)
         }
 
         val statesModel = StatesModel(states)
