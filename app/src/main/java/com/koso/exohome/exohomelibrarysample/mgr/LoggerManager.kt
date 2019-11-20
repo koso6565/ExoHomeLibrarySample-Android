@@ -20,8 +20,8 @@ class LoggerManager {
     fun publish(msg: String){
 
 
-            val cal = Calendar.getInstance()
-            val time = "${cal.get(Calendar.HOUR)}:${cal.get(Calendar.MINUTE)}:${cal.get(Calendar.SECOND)}"
+        val cal = Calendar.getInstance()
+        val time = "${cal.get(Calendar.HOUR)}:${cal.get(Calendar.MINUTE)}:${cal.get(Calendar.SECOND)}"
 
         _messageListener.value = arrayOf(time, msg)
     }

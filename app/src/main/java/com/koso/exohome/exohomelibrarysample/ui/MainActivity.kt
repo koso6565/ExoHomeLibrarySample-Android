@@ -11,6 +11,7 @@ import com.koso.exohome.exohomelibrarysample.R
 import com.koso.exohome.exohomelibrarysample.mgr.ExoHomeConnectionManager
 import com.koso.exohome.exohomelibrarysample.mgr.LoggerManager
 import com.koso.exohome.exohomelibrarysample.ui.login.LoginActivity
+import com.koso.exohome.exohomelibrarysample.utils.SharedPrefHandler
 import kotlinx.android.synthetic.main.activity_main.*
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttToken
@@ -110,6 +111,8 @@ class MainActivity : AppCompatActivity() {
         TransitionManager.beginDelayedTransition(vConstraintLayout)
         if (show) {
             constraintSet2.applyTo(vConstraintLayout)
+            vLog.text =
+                "------ device token -----\n${SharedPrefHandler.getDeviceToken()}\n------ device id -----\n${SharedPrefHandler.getDeviceId()}"
         } else {
             constraintSet1.applyTo(vConstraintLayout)
             vLog.text = ""
